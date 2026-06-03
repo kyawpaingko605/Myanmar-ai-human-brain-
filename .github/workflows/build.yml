@@ -1,4 +1,4 @@
-name: Python Application Build and Test
+name: Mobile App Android Build
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Android Build အတွက် ပိုမိုတည်ငြိမ်သော ပတ်ဝန်းကျင်
 
     steps:
     - name: Checkout repository
@@ -18,24 +18,31 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        cache: 'pip'
 
-    - name: Install dependencies with Virtual Env
+    - name: Install Android Build Dependencies
       run: |
-        python -m venv venv
-        source venv/bin/activate
+        sudo apt-get update
+        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev libgdbm-dev libsqlite3-dev libb2-dev liblzma-dev libffi-dev uuid-dev execstack libarchive-tools
         python -m pip install --upgrade pip
-        pip install pytest pytest-cov flake8
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install buildozer cython
 
-    - name: Lint with flake8
+    - name: Initialize Buildozer Config
       run: |
-        source venv/bin/activate
-        # --exclude=venv ကို ထည့်သွင်းပြီး external libraries များကို ကျော်ခိုင်းထားပါသည်
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=venv
+        # buildozer.spec ဖိုင် မရှိသေးလျှင် အလိုအလျောက် ဆောက်ပေးမည်
+        if [ ! -f buildozer.spec ]; then buildozer init; fi
+        
+        # အခြေခံ App Specification များကို ပြင်ဆင်ခြင်း
+        sed -i 's/title = My Application/title = Myanmar AI Brain/g' buildozer.spec
+        sed -i 's/package.name = myapp/package.name = myanmar_ai_brain/g' buildozer.spec
+        sed -i 's/requirements = python3,kivy/requirements = python3,kivy,requests,pydantic/g' buildozer.spec
 
-    - name: Run Unit Tests with Pytest
+    - name: Build Android APK
       run: |
-        source venv/bin/activate
-        pytest || echo "No test cases found yet, baseline setup is ready."
+        # Android .apk ထုတ်လုပ်ခြင်း (ပထမအကြိမ်တွင် မိနစ်အနည်းငယ် ကြာမြင့်နိုင်သည်)
+        buildozer -v android debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Myanmar-AI-Brain-Android-APK
+        path: bin/*.apk
