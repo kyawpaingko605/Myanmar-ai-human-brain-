@@ -22,26 +22,42 @@ jobs:
       with:
         python-version: "3.10"
 
+    # Android Build လုပ်ဖို့အတွက် Java Environment တစ်ခု မဖြစ်မနေ လိုအပ်ပါတယ်
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Install System Dependencies for Buildozer
       run: |
         sudo apt-get update
-        sudo apt-get install -y ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev xclip libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+        sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake \
+          libtool pkg-config zlib1g-dev xclip libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+          libsdl2-ttf-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
         python -m pip install --upgrade pip
         pip install buildozer cython kivy
 
     - name: Build APK using GitHub's Android SDK
       env:
-        # GitHub Runner မှာ အသင့်ပါတဲ့ Android SDK လမ်းကြောင်းကို တိုက်ရိုက်ညွှန်ပေးလိုက်တာပါ
+        # GitHub Runner မှာ အသင့်ပါတဲ့ Android SDK လမ်းကြောင်းကို ညွှန်ပြထားခြင်း
         ANDROID_HOME: /usr/local/lib/android/sdk
         ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       run: |
-        # buildozer.spec ဖိုင် မရှိသေးရင် အလိုအလျောက် ဆောက်ခိုင်းမယ်
+        # buildozer.spec ဖိုင် မရှိသေးရင် အလိုအလျောက် ဆောက်မယ်
         if [ ! -f buildozer.spec ]; then
           buildozer init
         fi
         
-        # GitHub ရဲ့ အသင့်ပါပြီးသား SDK ကို သုံးဖို့အတွက် spec ဖိုင်ထဲမှာ လမ်းကြောင်း ပြင်ပေးလိုက်တာပါ
+        # GitHub ရဲ့ အသင့်ပါပြီးသား SDK ကို သုံးဖို့အတွက် spec ဖိုင်ထဲမှာ လမ်းကြောင်း ပြင်ပေးခြင်း
         sed -i 's|#android.sdk_path =|android.sdk_path = /usr/local/lib/android/sdk|g' buildozer.spec
         
-        # မလိုအပ်တဲ့ ပြဿနာတွေ ကာကွယ်ဖို့အတွက် buildozer ကို non-interactive mode (y အလိုအလျောက်ဖြေစနစ်) နဲ့ Run ခိုင်းလိုက်ပါတယ်
-        buildozer -v android debug
+        # License မေးခွန်းတွေကို အလိုအလျောက် Yes ဖြေပြီး ပိတ်ဆို့မှုမရှိဘဲ Build ဆင်းစေဖို့ ဖြစ်ပါတယ်
+        yes | buildozer -v android debug
+
+    # Build အောင်မြင်သွားရင် ထွက်လာတဲ့ APK ကို GitHub Actions Artifact အနေနဲ့ သိမ်းဆည်းပေးမယ့် အဆင့်
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: myanmar-ai-human-brain-apk
+        path: bin/*.apk
