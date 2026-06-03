@@ -90,9 +90,8 @@ def chat(message, history):
 
     reply = brain(message)
 
-    # IMPORTANT: messages format (no crash)
-    history.append({"role": "user", "content": message})
-    history.append({"role": "assistant", "content": reply})
+    # Version အားလုံးမှာ Error မတက်အောင် standard tuple format ပြောင်းလဲပေးထားပါတယ်
+    history.append((message, reply))
 
     return "", history
 
@@ -101,7 +100,8 @@ with gr.Blocks() as app:
 
     gr.Markdown("# 🧠 Myanmar AI Human Brain (GitHub + HF Ready)")
 
-    chatbot = gr.Chatbot(type="messages")
+    # Error တက်စေတဲ့ type="messages" ကို ဖြုတ်ပေးထားပါတယ်
+    chatbot = gr.Chatbot()
 
     msg = gr.Textbox(placeholder="မြန်မာစာရေးပါ...")
 
