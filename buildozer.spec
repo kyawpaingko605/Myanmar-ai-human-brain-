@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-# သင့် App ရဲ့ နာမည် (ပြောင်းလဲနိုင်ပါတယ်)
+# သင့် App ရဲ့ နာမည်
 title = Myanmar AI Human Brain
 
 # (str) Package name
@@ -21,26 +21,26 @@ source.include_exts = py,png,jpg,kv,atlas,json
 version = 0.1
 
 # (list) Application requirements
-# App အတွက် လိုအပ်တဲ့ Python Libraries များ (kivy အပြင် အခြားလိုတာရှိရင် ကော်မာခံပြီး ထည့်ပါ)
-requirements = python3,kivy
+# App အတွက် လိုအပ်တဲ့ Python Libraries များ
+# hostpython3 ပါဝင်မှ GitHub Actions မှာ cross-compile လုပ်ရတာ အဆင်ပြေမှာပါ
+requirements = hostpython3,python3,kivy
 
 # (str) Supported orientations (valid options are: landscape, portrait, all)
-# App ဖွင့်ရင် စခရင်ကို ဒေါင်လိုက်လား၊ အလျားလိုက်လား သတ်မှတ်တာပါ
 orientation = portrait
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 1
+
 
 # =============================================================================
 # Android specific configuration
 # =============================================================================
 
 # (list) Permissions
-# App က တောင်းမယ့် Permissions များ (ဥပမာ- အင်တာနက် သုံးချင်ရင် INTERNET ကို # ဖြုတ်ပေးပါ)
+# App က တောင်းမယ့် Permissions များ (အင်တာနက် သုံးဖို့အတွက် ထည့်သွင်းထားပါတယ်)
 android.permissions = INTERNET
 
 # (int) Target Android API, should be as high as possible.
-# Android API Level သတ်မှတ်ချက် (33 သို့မဟုတ် 34 က လက်ရှိ အဆင်ပြေဆုံးပါ)
 android.api = 33
 
 # (int) Minimum API your APK will support.
@@ -54,6 +54,11 @@ android.private_storage = True
 
 # (str) Type of builds to run (debug or release)
 android.release = False
+
+# (bool) Accept SDK license without prompting
+# ဤအချက်ကို True ပေးထားခြင်းဖြင့် console ကနေ license အတင်းတောင်းပြီး error တက်ခြင်းကို ကျော်လွှားနိုင်ပါမယ်
+android.accept_sdk_license = True
+
 
 [buildozer]
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
