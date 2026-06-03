@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # Android Build အတွက် ပိုမိုတည်ငြိမ်သော ပတ်ဝန်းကျင်
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout repository
@@ -24,21 +24,26 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev libgdbm-dev libsqlite3-dev libb2-dev liblzma-dev libffi-dev uuid-dev execstack libarchive-tools
         python -m pip install --upgrade pip
-        pip install buildozer cython
+        幕 pip install buildozer cython
 
     - name: Initialize Buildozer Config
       run: |
-        # buildozer.spec ဖိုင် မရှိသေးလျှင် အလိုအလျောက် ဆောက်ပေးမည်
         if [ ! -f buildozer.spec ]; then buildozer init; fi
-        
-        # အခြေခံ App Specification များကို ပြင်ဆင်ခြင်း
         sed -i 's/title = My Application/title = Myanmar AI Brain/g' buildozer.spec
         sed -i 's/package.name = myapp/package.name = myanmar_ai_brain/g' buildozer.spec
         sed -i 's/requirements = python3,kivy/requirements = python3,kivy,requests,pydantic/g' buildozer.spec
 
+    - name: Accept Android SDK Licenses
+      run: |
+        # SDK Licenses များကို လူကိုယ်တိုင် 'yes' နှိပ်စရာမလိုဘဲ အလိုအလျောက် accept လုပ်ခိုင်းခြင်း
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        yes | buildozer android pms --update || true
+
     - name: Build Android APK
       run: |
-        # Android .apk ထုတ်လုပ်ခြင်း (ပထမအကြိမ်တွင် မိနစ်အနည်းငယ် ကြာမြင့်နိုင်သည်)
+        # Buildozer ကို Android Build စတင်ခိုင်းခြင်း
+        # (ပထမအကြိမ် Android SDK, NDK ဒေါင်းရမှာမို့လို့ ၁၀ မိနစ်ကနေ ၁၅ မိနစ်ဝန်းကျင်အထိ ကြာနိုင်ပါတယ်)
         buildozer -v android debug
 
     - name: Upload APK Artifact
