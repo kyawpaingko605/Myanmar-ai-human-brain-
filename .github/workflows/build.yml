@@ -1,4 +1,4 @@
-name: Mobile App Android Build
+name: Python Application CI
 
 on:
   push:
@@ -6,45 +6,28 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: "3.10"
 
-    - name: Install Android Build Dependencies
+    - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev libgdbm-dev libsqlite3-dev libb2-dev liblzma-dev libffi-dev uuid-dev execstack libarchive-tools
         python -m pip install --upgrade pip
-        pip install buildozer cython
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Initialize Buildozer Config
+    - name: Run Application / Tests
       run: |
-        if [ ! -f buildozer.spec ]; then buildozer init; fi
-        sed -i 's/title = My Application/title = Myanmar AI Brain/g' buildozer.spec
-        sed -i 's/package.name = myapp/package.name = myanmar_ai_brain/g' buildozer.spec
-        sed -i 's/requirements = python3,kivy/requirements = python3,kivy,requests,pydantic/g' buildozer.spec
-
-    - name: Accept Android SDK Licenses
-      run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        yes | buildozer android pms --update || true
-
-    - name: Build Android APK
-      run: |
-        buildozer -v android debug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Myanmar-AI-Brain-Android-APK
-        path: bin/*.apk
+        # Replace with your actual test or execution command
+        python app.py
