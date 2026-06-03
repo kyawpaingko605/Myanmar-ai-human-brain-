@@ -24,7 +24,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev libgdbm-dev libsqlite3-dev libb2-dev liblzma-dev libffi-dev uuid-dev execstack libarchive-tools
         python -m pip install --upgrade pip
-        幕 pip install buildozer cython
+        pip install buildozer cython
 
     - name: Initialize Buildozer Config
       run: |
@@ -35,15 +35,12 @@ jobs:
 
     - name: Accept Android SDK Licenses
       run: |
-        # SDK Licenses များကို လူကိုယ်တိုင် 'yes' နှိပ်စရာမလိုဘဲ အလိုအလျောက် accept လုပ်ခိုင်းခြင်း
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
         yes | buildozer android pms --update || true
 
     - name: Build Android APK
       run: |
-        # Buildozer ကို Android Build စတင်ခိုင်းခြင်း
-        # (ပထမအကြိမ် Android SDK, NDK ဒေါင်းရမှာမို့လို့ ၁၀ မိနစ်ကနေ ၁၅ မိနစ်ဝန်းကျင်အထိ ကြာနိုင်ပါတယ်)
         buildozer -v android debug
 
     - name: Upload APK Artifact
