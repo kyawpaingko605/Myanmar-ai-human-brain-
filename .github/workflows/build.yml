@@ -25,19 +25,17 @@ jobs:
         python -m venv venv
         source venv/bin/activate
         python -m pip install --upgrade pip
-        # Testing အတွက် pytest ပါတစ်ခါတည်း သွင်းပေးထားပါတယ်
         pip install pytest pytest-cov flake8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Lint with flake8
       run: |
         source venv/bin/activate
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        # --exclude=venv ကို ထည့်သွင်းပြီး external libraries များကို ကျော်ခိုင်းထားပါသည်
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=venv
 
     - name: Run Unit Tests with Pytest
       run: |
         source venv/bin/activate
-        # test_*.py ဖိုင်တွေရှိရင် အလိုအလျောက် test run ပြီး coverage report ထုတ်ပေးမှာဖြစ်ပါတယ်
-        # တကယ်လို့ test file မဆောက်ရသေးရင် အောက်က line က error မတက်အောင် baseline ပဲ စစ်သွားပါမယ်
         pytest || echo "No test cases found yet, baseline setup is ready."
