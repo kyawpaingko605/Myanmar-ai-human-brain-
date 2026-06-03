@@ -29,13 +29,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install buildozer cython kivy
 
-    - name: Run Buildozer and Accept Licenses Automatically
+    - name: Build APK using GitHub's Android SDK
+      env:
+        # GitHub Runner မှာ အသင့်ပါတဲ့ Android SDK လမ်းကြောင်းကို တိုက်ရိုက်ညွှန်ပေးလိုက်တာပါ
+        ANDROID_HOME: /usr/local/lib/android/sdk
+        ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       run: |
-        # Buildozer ကို စတင် Run ပြီး License တောင်းလာရင် အလိုအလျောက် Yes (y) လို့ ဖြေခိုင်းထားခြင်းဖြစ်ပါတယ်
-        yes | buildozer -v android debug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Android-APK
-        path: .buildozer/android/platform/build-android/*/build/outputs/apk/*/*.apk
+        # buildozer.spec ဖိုင် မရှိသေးရင် အလိုအလျောက် ဆောက်ခိုင်းမယ်
+        if [ ! -f buildozer.spec ]; then
+          buildozer init
+        fi
+        
+        # GitHub ရဲ့ အသင့်ပါပြီးသား SDK ကို သုံးဖို့အတွက် spec ဖိုင်ထဲမှာ လမ်းကြောင်း ပြင်ပေးလိုက်တာပါ
+        sed -i 's|#android.sdk_path =|android.sdk_path = /usr/local/lib/android/sdk|g' buildozer.spec
+        
+        # မလိုအပ်တဲ့ ပြဿနာတွေ ကာကွယ်ဖို့အတွက် buildozer ကို non-interactive mode (y အလိုအလျောက်ဖြေစနစ်) နဲ့ Run ခိုင်းလိုက်ပါတယ်
+        buildozer -v android debug
