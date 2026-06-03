@@ -1,4 +1,4 @@
-name: Python Application CI
+name: Build Android APK with Buildozer
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -22,12 +22,20 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies
+    - name: Install System Dependencies for Buildozer
       run: |
+        sudo apt-get update
+        sudo apt-get install -y ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev xclip libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install buildozer cython kivy
 
-    - name: Run Application / Tests
+    - name: Run Buildozer and Accept Licenses Automatically
       run: |
-        # Replace with your actual test or execution command
-        python app.py
+        # Buildozer ကို စတင် Run ပြီး License တောင်းလာရင် အလိုအလျောက် Yes (y) လို့ ဖြေခိုင်းထားခြင်းဖြစ်ပါတယ်
+        yes | buildozer -v android debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Android-APK
+        path: .buildozer/android/platform/build-android/*/build/outputs/apk/*/*.apk
