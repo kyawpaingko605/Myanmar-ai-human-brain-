@@ -5,7 +5,7 @@ import requests
 from difflib import get_close_matches
 
 # 🌐 GitHub RAW KB (CHANGE THIS)
-KB_URL = "https://raw.githubusercontent.com/YOURNAME/Myanmar-ai-human-brain/main/kb.json"
+KB_URL = "https://raw.githubusercontent.com/kyawpaingko605/Myanmar-ai-human-brain/main/kb.json"
 
 MEM_FILE = "memory.json"
 
